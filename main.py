@@ -29,7 +29,7 @@ st.markdown("""
         border-radius: 15px !important;
         
         /* Ukuran Card */
-        width: 250px !important;      /* Paksa lebar 100% dari kolom */
+        width: auto !important;      /* Paksa lebar 100% dari kolom */
         min-width: 100% !important;  /* Tambahan penguat lebar */
         min-height: 250px !important; /* Tinggi kotak */
         padding: 20px !important;
