@@ -58,6 +58,20 @@ else:
         with col4:
             st.button("💰 Settlement", key="btn_settle", use_container_width=True, disabled=True)
 
+        with col1:
+            if st.button("📤 Upload Data", key="btn_upload", use_container_width=True):
+                st.session_state["current_page"] = "upload"
+                st.rerun()
+        
+        with col2:
+            st.button("📊 Report Sales", key="btn_report", use_container_width=True, disabled=True)
+            
+        with col3:
+            st.button("📦 Inventory", key="btn_inv", use_container_width=True, disabled=True)
+            
+        with col4:
+            st.button("💰 Settlement", key="btn_settle", use_container_width=True, disabled=True)
+
     elif st.session_state["current_page"] == "upload":
         # Menampilkan halaman upload dari file upload_data.py
         show_upload_dashboard(conn)
