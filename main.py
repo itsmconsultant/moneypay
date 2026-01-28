@@ -58,18 +58,20 @@ else:
         with col4:
             st.button("💰 Settlement", key="btn_settle", use_container_width=True, disabled=True)
 
-        with col1:
+        col5, col6, col7, col8 = st.columns(4)
+
+        with col5:
             if st.button("📤 Upload Data", key="btn_upload", use_container_width=True):
                 st.session_state["current_page"] = "upload"
                 st.rerun()
         
-        with col2:
+        with col6:
             st.button("📊 Report Sales", key="btn_report", use_container_width=True, disabled=True)
             
-        with col3:
+        with col7:
             st.button("📦 Inventory", key="btn_inv", use_container_width=True, disabled=True)
             
-        with col4:
+        with col8:
             st.button("💰 Settlement", key="btn_settle", use_container_width=True, disabled=True)
 
     elif st.session_state["current_page"] == "upload":
