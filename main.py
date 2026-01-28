@@ -13,44 +13,39 @@ st.set_page_config(
 # 2. CSS KUSTOM (Target spesifik area Main Menu)
 st.markdown("""
     <style>
-    /* 2. PAKSA KOLOM MELEBAR */
+    header {visibility: hidden;}
+    
+    /* PAKSA KOLOM MELEBAR */
     [data-testid="column"] {
         width: 100% !important;
-        flex: 1 1 calc(25% - 1rem) !important; /* Untuk 4 kolom */
-        min-width: 200px !important;
+        flex: 1 1 calc(50% - 1rem) !important; /* Karena pakai 2 kolom */
     }
 
-    /* 3. STYLE CARD UTAMA (Sangat Agresif) */
+    /* STYLE CARD UTAMA */
     [data-testid="stMain"] [data-testid="stVerticalBlock"] [data-testid="stHorizontalBlock"] div.stButton > button {
         background-color: #ffffff !important;
         color: #31333F !important;
         border: 1px solid #e6e9ef !important;
         border-radius: 15px !important;
-        
-        /* Lebar Mutlak */
         width: 100% !important;
         display: block !important;
         min-height: 220px !important;
-        
-        /* Bayangan dan Transisi */
         box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
         transition: all 0.3s ease !important;
+        white-space: pre-wrap !important;
     }
 
-    /* Efek Hover */
     [data-testid="stMain"] div.stButton > button:hover {
         border-color: #ff4b4b !important;
         transform: translateY(-5px) !important;
         box-shadow: 0 12px 24px rgba(0,0,0,0.15) !important;
-        background-color: #ffffff !important;
     }
 
-    /* 4. RESET SIDEBAR (Tetap Standar) */
-    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] div.stButton > button {
+    /* RESET SIDEBAR (Tetap Standar) */
+    [data-testid="stSidebar"] div.stButton > button {
         width: 100% !important;
         min-height: unset !important;
         padding: 5px !important;
-        border-radius: 4px !important;
         background-color: transparent !important;
         border: 1px solid rgba(49, 51, 63, 0.2) !important;
         box-shadow: none !important;
@@ -83,23 +78,29 @@ else:
             st.session_state["authenticated"] = False
             st.rerun()
 
-    # KONTEN UTAMA
-    # Baris 1
-    row1_col1, row1_col2 = st.columns(2)
-    with row1_col1:
-        if st.button("📤\n\nUpload Data", key="c1"):
-            st.session_state["current_page"] = "upload"
-            st.rerun()
-    with row1_col2:
-        st.button("📊\n\nReport Sales", key="c2", disabled=True)
-    
-    # Baris 2
-    row2_col1, row2_col2 = st.columns(2)
-    with row2_col1:
-        st.button("📦\n\nInventory", key="c3", disabled=True)
-    with row2_col2:
-        st.button("💰\n\nSettlement", key="c4", disabled=True)
+    # KONTEN UTAMA (Struktur Navigasi yang diperbaiki)
+    if st.session_state["current_page"] == "menu":
+        st.title("Main Menu")
+        st.write("Pilih layanan di bawah ini:")
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # Baris 1
+        row1_col1, row1_col2 = st.columns(2)
+        with row1_col1:
+            if st.button("📤\n\nUpload Data", key="c1"):
+                st.session_state["current_page"] = "upload"
+                st.rerun()
+        with row1_col2:
+            st.button("📊\n\nReport Sales", key="c2", disabled=True)
+        
+        st.markdown("<br>", unsafe_allow_html=True)
 
+        # Baris 2
+        row2_col1, row2_col2 = st.columns(2)
+        with row2_col1:
+            st.button("📦\n\nInventory", key="c3", disabled=True)
+        with row2_col2:
+            st.button("💰\n\nSettlement", key="c4", disabled=True)
 
     elif st.session_state["current_page"] == "upload":
         show_upload_dashboard(conn)
