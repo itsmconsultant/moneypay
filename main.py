@@ -2,6 +2,7 @@ import streamlit as st
 from st_supabase_connection import SupabaseConnection
 from login import show_login
 from upload_data import show_upload_dashboard
+from run_procedure import show_run_procedure
 
 # 1. SET WIDE MODE DEFAULT
 st.set_page_config(
@@ -59,8 +60,10 @@ else:
                 st.session_state["current_page"] = "upload"
                 st.rerun()
         
-        with col2:
-            st.button("📊 Report Sales", key="btn_report", use_container_width=True, disabled=True)
+        with col2: # Misalnya kotak kedua
+            if st.button("⚙️\n\nRun Procedure", key="card_proc", use_container_width=True):
+                st.session_state["current_page"] = "procedure"
+                st.rerun()
             
         with col3:
             st.button("📦 Inventory", key="btn_inv", use_container_width=True, disabled=True)
@@ -71,3 +74,6 @@ else:
     elif st.session_state["current_page"] == "upload":
         # Menampilkan halaman upload dari file upload_data.py
         show_upload_dashboard(conn)
+        
+    elif st.session_state["current_page"] == "procedure":
+        show_run_procedure(conn)
