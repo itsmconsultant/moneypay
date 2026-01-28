@@ -1,5 +1,11 @@
 import streamlit as st
 
+# 1. SET WIDE MODE DEFAULT
+st.set_page_config(
+    page_title="Portal System", 
+    initial_sidebar_state="expanded"
+)
+
 def show_login(conn):
     st.title("🔐 Login ke Sistem")
     
