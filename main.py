@@ -24,7 +24,6 @@ st.markdown("""
         background-color: #f0f2f6;
         border-color: #ff4b4b;
     }
-    header {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
 
