@@ -96,7 +96,7 @@ else:
         st.markdown("<br>", unsafe_allow_html=True)
         
         # GUNAKAN 3 ATAU 4 KOLOM (Semakin sedikit kolom, Card semakin lebar)
-        col1, col2, col3, col4 = st.columns(4)
+        col1, col2 = st.columns(4)
         
         with col1:
             if st.button("📤\n\nUpload Data", key="card_upload"):
@@ -104,10 +104,7 @@ else:
                 st.rerun()
         with col2:
             st.button("📊\n\nReport Sales", key="card_rep", disabled=True)
-        with col3:
-            st.button("📦\n\nInventory", key="card_inv", disabled=True)
-        with col4:
-            st.button("💰\n\nSettlement", key="card_set", disabled=True)
+
 
     elif st.session_state["current_page"] == "upload":
         show_upload_dashboard(conn)
