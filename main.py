@@ -96,7 +96,7 @@ else:
         st.markdown("<br>", unsafe_allow_html=True)
         
         # GUNAKAN 3 ATAU 4 KOLOM (Semakin sedikit kolom, Card semakin lebar)
-        col1, col2 = st.columns(4)
+        col1, col2 = st.columns(2)
         
         with col1:
             if st.button("📤\n\nUpload Data", key="card_upload"):
