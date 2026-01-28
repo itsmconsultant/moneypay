@@ -53,7 +53,7 @@ else:
         st.divider()
         
         # Grid Menu menggunakan tombol standar Streamlit
-        col1, col2, col3, col4 = st.columns(4)
+        col1, col2 = st.columns(2)
         
         with col1:
             if st.button("📤\n\n\n\nUpload Data", key="btn_upload", use_container_width=True):
@@ -64,7 +64,10 @@ else:
             if st.button("⚙️\n\n\n\nProcess Data", key="card_proc", use_container_width=True):
                 st.session_state["current_page"] = "procedure"
                 st.rerun()
-            
+        
+        st.divider()
+        col3, col4 = st.columns(2)
+        
         with col3:
             st.button("📦 Inventory", key="btn_inv", use_container_width=True, disabled=True)
             
