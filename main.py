@@ -10,25 +10,30 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. CSS KUSTOM UNTUK MODERNIZE UI (Card Style)
+# 2. CSS KUSTOM (Target spesifik hanya untuk Card di Main Menu)
 st.markdown("""
     <style>
-    /* Style untuk tombol agar terlihat seperti Card */
-    div.stButton > button {
+    /* Style khusus untuk Container Card di Main Menu */
+    /* Kita gunakan selector khusus agar tidak merusak Sidebar */
+    [data-testid="stMain"] div.stButton > button {
         background-color: #ffffff;
         color: #31333F;
         border: 1px solid #e6e9ef;
         border-radius: 15px;
-        padding: 60px 20px;
-        font-size: 20px;
+        padding: 80px 20px; /* Padding atas-bawah diperbesar untuk kesan Card */
+        font-size: 18px;
         font-weight: bold;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         transition: all 0.3s ease;
-        width: 100%;
-        display: block;
+        width: 100%; /* Memaksa lebar mengikuti kolom */
+        min-height: 200px; /* Memastikan tinggi minimum agar berbentuk kotak */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
     
-    div.stButton > button:hover {
+    [data-testid="stMain"] div.stButton > button:hover {
         border-color: #ff4b4b;
         color: #ff4b4b;
         transform: translateY(-5px);
@@ -36,11 +41,16 @@ st.markdown("""
         background-color: #ffffff;
     }
 
-    /* Penyesuaian teks caption di bawah icon */
-    .card-text {
-        text-align: center;
-        margin-top: -40px;
-        font-weight: 600;
+    /* Memastikan tombol Sidebar tetap standar (Tidak terpengaruh CSS Card) */
+    [data-testid="stSidebar"] div.stButton > button {
+        background-color: transparent;
+        padding: 0.25rem 0.75rem;
+        min-height: 0px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: normal;
+        box-shadow: none;
+        width: auto;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -57,15 +67,15 @@ if "current_page" not in st.session_state:
 if not st.session_state["authenticated"]:
     show_login(conn)
 else:
-    # SIDEBAR (Hanya diatur di sini untuk menghindari Duplication Error)
+    # SIDEBAR (Tombol standar)
     with st.sidebar:
         st.title("Informasi Akun")
         st.write(f"Logged in as:\n{st.session_state.get('user_email', 'User')}")
         st.divider()
-        if st.button("🏠 Home Menu", key="side_home"):
+        if st.button("Home Menu", key="side_home"):
             st.session_state["current_page"] = "menu"
             st.rerun()
-        if st.button("🚪 Logout", key="side_logout"):
+        if st.button("Logout", key="side_logout"):
             conn.client.auth.sign_out()
             st.session_state["authenticated"] = False
             st.rerun()
@@ -76,10 +86,11 @@ else:
         st.write("Silakan pilih modul yang ingin Anda akses:")
         st.markdown("<br>", unsafe_allow_html=True)
         
-        # GRID LAYOUT (CARD STYLE)
+        # GRID LAYOUT (4 Kolom untuk Card yang lebih lebar)
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
+            # Gunakan \n yang cukup untuk memisahkan Icon dan Teks
             if st.button("📤\n\nUpload Data", key="card_upload"):
                 st.session_state["current_page"] = "upload"
                 st.rerun()
