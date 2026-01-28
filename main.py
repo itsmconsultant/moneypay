@@ -2,7 +2,7 @@ import streamlit as st
 from st_supabase_connection import SupabaseConnection
 from login import show_login
 from upload_data import show_upload_dashboard
-from run_procedure import show_run_procedure
+from process_data import show_run_procedure
 
 # 1. SET WIDE MODE DEFAULT
 st.set_page_config(
