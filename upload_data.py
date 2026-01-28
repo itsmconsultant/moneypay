@@ -4,7 +4,7 @@ import numpy as np
 
 def show_upload_dashboard(conn):
 
-    st.title("📤 Dashboard Upload Data")
+    st.title("📤 Upload Data")
 
     # Ambil daftar tabel
     try:
@@ -47,4 +47,5 @@ def show_upload_dashboard(conn):
                         st.error(f"Error saat upload: {e}")
         except Exception as e:
             st.error(f"File rusak atau tidak terbaca: {e}")
+
 
