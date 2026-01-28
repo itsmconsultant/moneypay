@@ -56,7 +56,7 @@ else:
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            if st.button("📤 Upload Data", key="btn_upload", use_container_width=True):
+            if st.button("📤\n\nUpload Data", key="btn_upload", use_container_width=True):
                 st.session_state["current_page"] = "upload"
                 st.rerun()
         
