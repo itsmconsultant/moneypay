@@ -3,6 +3,31 @@ from st_supabase_connection import SupabaseConnection
 from login import show_login
 from upload_data import show_upload_dashboard
 
+# CSS untuk tampilan Grid Kotak Putih (Dashboard Style)
+st.markdown("""
+    <style>
+    .main-button {
+        background-color: #ffffff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 40px;
+        text-align: center;
+        transition: 0.3s;
+        cursor: pointer;
+        color: black;
+        font-weight: bold;
+        display: block;
+        margin-bottom: 20px;
+        text-decoration: none;
+    }
+    .main-button:hover {
+        background-color: #f0f2f6;
+        border-color: #ff4b4b;
+    }
+    header {visibility: hidden;}
+    </style>
+""", unsafe_allow_html=True)
+
 # Konfigurasi Halaman
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
