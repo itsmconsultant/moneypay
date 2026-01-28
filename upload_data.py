@@ -3,13 +3,6 @@ import pandas as pd
 import numpy as np
 
 def show_upload_dashboard(conn):
-    # Sidebar
-    st.sidebar.title("Informasi Akun")
-    st.sidebar.write(f"Logged in as: {st.session_state['user_email']}")
-    if st.sidebar.button("Logout"):
-        conn.client.auth.sign_out()
-        st.session_state["authenticated"] = False
-        st.rerun()
 
     st.title("📤 Dashboard Upload Data")
 
@@ -54,3 +47,4 @@ def show_upload_dashboard(conn):
                         st.error(f"Error saat upload: {e}")
         except Exception as e:
             st.error(f"File rusak atau tidak terbaca: {e}")
+
