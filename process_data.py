@@ -16,24 +16,17 @@ def show_run_procedure(conn):
         
         with st.spinner(f"Sedang menjalankan prosedur untuk tanggal {tanggal_str}..."):
             try:
-                # 2. Memanggil RPC (Remote Procedure Call)
-                # Nama fungsi harus sesuai dengan yang ada di database
-                # Parameter dikirimkan dalam bentuk dictionary: {"nama_parameter": nilai}
-                response = conn.client.schema("project1").rpc(
-                    "run_all_procedures", 
-                    {"vgetdate": tanggal_str}
-                ).execute()
+                # Gunakan query manual dengan perintah CALL untuk Procedure
+                # Kita menggunakan f-string untuk memasukkan parameter ke dalam string SQL
+                query = f"CALL project1.run_all_procedure('{tanggal_str}')"
                 
-                # 3. Menampilkan Hasil
-                st.success(f"Prosedur berhasil dijalankan untuk tanggal: {tanggal_str}")
+                # Eksekusi melalui conn.query (pastikan library mendukung atau gunakan client.postgrest)
+                response = conn.client.postgrest.query(query).execute()
                 
-                # Jika procedure mengembalikan data (misal log atau status), tampilkan di sini
-                if response.data:
-                    st.json(response.data)
+                st.success(f"Stored Procedure berhasil dipanggil untuk tanggal: {tanggal_str}")
                 
             except Exception as e:
                 st.error(f"Gagal menjalankan prosedur: {e}")
-                st.info("Pastikan parameter 'tanggal' di database bertipe DATE atau TEXT.")
 
     # Tombol Kembali (Opsional jika tidak lewat sidebar)
     if st.button("Kembali ke Menu Utama"):
