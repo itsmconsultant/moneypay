@@ -4,17 +4,6 @@ from st_supabase_connection import SupabaseConnection
 # 1. Konfigurasi Halaman
 st.set_page_config(page_title="Login - Excel Uploader", layout="centered")
 
-# 2. Sembunyikan Header dan UI Streamlit agar lebih bersih
-hide_st_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            header {visibility: hidden;}
-            footer {visibility: hidden;}
-            .stAppDeployButton {display:none;}
-            </style>
-            """
-st.markdown(hide_st_style, unsafe_allow_html=True)
-
 # 3. Inisialisasi Koneksi ke Supabase
 # Pastikan SUPABASE_URL dan SUPABASE_KEY sudah ada di Secrets
 conn = st.connection("supabase", type=SupabaseConnection)
