@@ -48,8 +48,8 @@ else:
 
     # KONTEN UTAMA
     if st.session_state["current_page"] == "menu":
-        st.title("Main Menu")
-        st.write("Silakan pilih modul yang ingin Anda akses:")
+        st.title("Data")
+        st.write("Harap upload dan proses data terlebih dahulu sebelum menarik report!")
         st.divider()
         
         # Grid Menu menggunakan tombol standar Streamlit
@@ -65,8 +65,9 @@ else:
                 st.session_state["current_page"] = "procedure"
                 st.rerun()
         
-        st.divider()
         st.title("Report")
+        st.write("Silakan pilih report yang ingin Anda akses:")
+        st.divider()
         col3, col4 = st.columns(2)
         
         with col3:
