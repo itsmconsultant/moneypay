@@ -14,7 +14,17 @@ st.set_page_config(
 conn = st.connection("supabase", type=SupabaseConnection)
 
 if "authenticated" not in st.session_state:
-    st.session_state["authenticated"] = False
+    try:
+        # Mencoba mengambil sesi yang tersimpan di browser
+        session = conn.client.auth.get_session()
+        if session:
+            st.session_state["authenticated"] = True
+            st.session_state["user_email"] = session.user.email
+        else:
+            st.session_state["authenticated"] = False
+    except:
+        st.session_state["authenticated"] = False
+
 if "current_page" not in st.session_state:
     st.session_state["current_page"] = "menu"
 
