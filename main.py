@@ -72,7 +72,9 @@ else:
         col3, col4 = st.columns(2)
         
         with col3:
-            st.button("📦 Inventory", key="btn_inv", use_container_width=True, disabled=True)
+            if st.button("📊\n\n\n\nReport Rekonsiliasi Transaksi Deposit dan Settlement", key="card_view", use_container_width=True):
+                st.session_state["current_page"] = "report_rekonsiliasi_transaksi_deposit_dan_settlement"
+                st.rerun()
             
         with col4:
             st.button("💰 Settlement", key="btn_settle", use_container_width=True, disabled=True)
@@ -83,3 +85,6 @@ else:
         
     elif st.session_state["current_page"] == "procedure":
         show_run_procedure(conn)
+
+    elif st.session_state["current_page"] == "report_rekonsiliasi_transaksi_deposit_dan_settlement":
+        show_view_report()
