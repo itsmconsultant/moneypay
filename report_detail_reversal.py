@@ -27,7 +27,6 @@ def show_report_detail_reversal(conn):
                 response = conn.client.schema("project1").table("detail_reversal") \
                     .select("*") \
                     .eq("tanggal_proses", tanggal_str) \
-                    .order("urutan", desc=False) \
                     .execute()
 
                 # 4. Menampilkan Hasil
