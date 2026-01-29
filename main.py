@@ -108,7 +108,7 @@ else:
         show_report_disbursement_durian(conn)
 
     elif st.session_state["current_page"] == "report_detail_reversal":
-        show_report_detail_reversal(conn)
+        show_report_balance_flow(conn)
 
     elif st.session_state["current_page"] == "report_balance_flow":
         show_report_detail_reversal(conn)
