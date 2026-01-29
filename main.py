@@ -3,6 +3,7 @@ from st_supabase_connection import SupabaseConnection
 from login import show_login
 from upload_data import show_upload_dashboard
 from process_data import show_run_procedure
+from report_rekonsiliasi_transaksi_deposit_dan_settlement import show_report_rekonsiliasi_transaksi_deposit_dan_settlement
 
 # 1. SET WIDE MODE DEFAULT
 st.set_page_config(
