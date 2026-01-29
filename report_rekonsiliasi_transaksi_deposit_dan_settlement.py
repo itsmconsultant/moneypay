@@ -27,7 +27,7 @@ def show_report_deposit_settlement(conn):
                 response = conn.client.schema("project1").table("summary_deposit") \
                     .select("*") \
                     .eq("tanggal_proses", tanggal_str) \
-                    .order("urutan", ascending=True) \
+                    .order("urutan", asc=True) \
                     .execute()
 
                 # 4. Menampilkan Hasil
