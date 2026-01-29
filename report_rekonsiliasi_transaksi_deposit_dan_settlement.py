@@ -26,7 +26,7 @@ def show_report_deposit_settlement(conn):
                 # 3. Menggunakan API Select Supabase (Tanpa SQLAlchemy)
                 # .table() merujuk ke nama tabel, .select("*") mengambil semua kolom
                 response = conn.client.schema("project1").table("summary_deposit") \
-                    .select("*") \
+                    .select("merchant, tanggal_proses, keterangan, jumlah_transaksi, jumlah_transaksi_sesuai_rate, penambahan_rupiah, pengurangan_rupiah, rekonsiliasi_jumlah_transaksi, rekonsiliasi_rupiah, rekonsiliasi_tambah_kurang, saldo_rekonsiliasi_rupiah") \
                     .eq("tanggal_proses", tanggal_str) \
                     .order("urutan", desc=False) \
                     .execute()
