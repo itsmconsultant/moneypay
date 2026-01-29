@@ -5,6 +5,7 @@ from upload_data import show_upload_dashboard
 from process_data import show_run_procedure
 from report_rekonsiliasi_transaksi_deposit_dan_settlement import show_report_deposit_settlement
 from report_rekonsiliasi_transaksi_disbursement_dan_saldo_durian import show_report_disbursement_durian
+from detail_reversal import show_report_detail_reversal
 
 # 1. SET WIDE MODE DEFAULT
 st.set_page_config(
@@ -82,6 +83,11 @@ else:
                 st.session_state["current_page"] = "report_rekonsiliasi_transaksi_disbursement_dan_saldo_durian"
                 st.rerun()
 
+        with col3:
+            if st.button("📊\n\n\n\nReport Detail Reversal", key="r3", use_container_width=True):
+                st.session_state["current_page"] = "report_detail_reversal"
+                st.rerun()
+
     elif st.session_state["current_page"] == "upload":
         # Menampilkan halaman upload dari file upload_data.py
         show_upload_dashboard(conn)
@@ -94,3 +100,6 @@ else:
 
     elif st.session_state["current_page"] == "report_rekonsiliasi_transaksi_disbursement_dan_saldo_durian":
         show_report_disbursement_durian(conn)
+
+    elif st.session_state["current_page"] == "report_detail_reversal":
+        show_report_detail_reversal(conn)
