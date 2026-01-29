@@ -4,7 +4,7 @@ from sqlalchemy import text
 import datetime
 
 # Hapus (conn) dari definisi fungsi karena kita panggil koneksi SQL di dalam
-def show_report_rekonsiliasi_transaksi_deposit_dan_settlement():
+def show_report_deposit_settlement():
     st.title("📊 Rekonsiliasi Transaksi Deposit dan Settlement")
     st.divider()
 
