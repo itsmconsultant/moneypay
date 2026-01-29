@@ -87,4 +87,4 @@ else:
         show_run_procedure(conn)
 
     elif st.session_state["current_page"] == "report_rekonsiliasi_transaksi_deposit_dan_settlement":
-        show_report_rekonsiliasi_transaksi_deposit_dan_settlement()
+        show_report_rekonsiliasi_transaksi_deposit_dan_settlement(conn)
