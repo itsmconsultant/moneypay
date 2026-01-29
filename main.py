@@ -4,6 +4,7 @@ from login import show_login
 from upload_data import show_upload_dashboard
 from process_data import show_run_procedure
 from report_rekonsiliasi_transaksi_deposit_dan_settlement import show_report_deposit_settlement
+from report_rekonsiliasi_transaksi_disbursement_dan_saldo_durian import show_report_disbursement_durian
 
 # 1. SET WIDE MODE DEFAULT
 st.set_page_config(
@@ -77,7 +78,9 @@ else:
                 st.rerun()
             
         with col4:
-            st.button("💰 Settlement", key="btn_settle", use_container_width=True, disabled=True)
+            if st.button("📊\n\n\n\nRekonsiliasi Transaksi Disbursement dan Saldo Durian", key="r2", use_container_width=True):
+                st.session_state["current_page"] = "report_rekonsiliasi_transaksi_disbursement_dan_saldo_durian"
+                st.rerun()
 
     elif st.session_state["current_page"] == "upload":
         # Menampilkan halaman upload dari file upload_data.py
@@ -88,3 +91,6 @@ else:
 
     elif st.session_state["current_page"] == "report_rekonsiliasi_transaksi_deposit_dan_settlement":
         show_report_deposit_settlement(conn)
+
+    elif st.session_state["current_page"] == "report_rekonsiliasi_transaksi_disbursement_dan_saldo_durian":
+        show_report_disbursement_durian(conn)
