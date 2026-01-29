@@ -5,7 +5,6 @@ import io
 
 def show_report_deposit_settlement(conn):
     st.title("📊 Rekonsiliasi Transaksi Deposit dan Settlement")
-    st.write("Menampilkan data langsung dari database Supabase.")
     st.divider()
 
     # 1. Input Parameter Tanggal
@@ -59,8 +58,3 @@ def show_report_deposit_settlement(conn):
                     
             except Exception as e:
                 st.error(f"Terjadi kesalahan: {e}")
-
-    # Sidebar Kembali
-    if st.sidebar.button("🏠 Kembali ke Menu Utama"):
-        st.session_state["current_page"] = "menu"
-        st.rerun()
