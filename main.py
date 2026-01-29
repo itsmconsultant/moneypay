@@ -72,7 +72,7 @@ else:
         col3, col4 = st.columns(2)
         
         with col3:
-            if st.button("📊\n\n\n\nReport Rekonsiliasi Transaksi Deposit dan Settlement", key="card_view", use_container_width=True):
+            if st.button("📊\n\n\n\nReport Rekonsiliasi Transaksi Deposit dan Settlement", key="r1", use_container_width=True):
                 st.session_state["current_page"] = "report_rekonsiliasi_transaksi_deposit_dan_settlement"
                 st.rerun()
             
