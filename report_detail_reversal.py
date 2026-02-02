@@ -24,7 +24,7 @@ def show_report_detail_reversal(conn):
             try:
                 # 3. Menggunakan API Select Supabase (Tanpa SQLAlchemy)
                 # .table() merujuk ke nama tabel, .select("*") mengambil semua kolom
-                response = conn.client.schema("project1").table("detail_reversal") \
+                response = conn.client.schema("moneypay").table("detail_reversal") \
                     .select("*") \
                     .eq("tanggal_proses", tanggal_str) \
                     .execute()
