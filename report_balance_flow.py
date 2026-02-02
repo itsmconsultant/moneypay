@@ -25,8 +25,8 @@ def show_report_balance_flow(conn):
                 # 3. Menggunakan API Select Supabase (Tanpa SQLAlchemy)
                 # .table() merujuk ke nama tabel, .select("*") mengambil semua kolom
                 response = conn.client.schema("moneypay").table("summary_balance_flow") \
-                    .select("keterangan,flag,tanggal_proses,jumlah_transaksi,amount,rate_pt,saldo_di_pt,rate_vendor,saldo_di_vendor,profit_pt,balance,balance_settle") \
-                    .eq("tanggal_proses", tanggal_str) \
+                    .select("keterangan,flag,tanggal_data,jumlah_transaksi,amount,rate_pt,saldo_di_pt,rate_vendor,saldo_di_vendor,profit_pt,balance,balance_settle") \
+                    .eq("tanggal_data", tanggal_str) \
                     .order("urutan", desc=False) \
                     .execute()
 
