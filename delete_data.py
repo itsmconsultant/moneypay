@@ -48,8 +48,3 @@ def show_delete_data(conn):
     # Tombol awal hanya memicu kemunculan pop-up
     if st.button("Hapus Data", type="secondary"):
         confirm_delete_dialog(selected_date)
-
-    # Sidebar Kembali
-    if st.sidebar.button("🏠 Kembali ke Menu Utama"):
-        st.session_state["current_page"] = "menu"
-        st.rerun()
