@@ -6,7 +6,7 @@ def show_run_procedure(conn): # Tetap terima conn jika perlu, tapi kita buat kon
     st.write("Pilih tanggal data yang mau di proses untuk menghasilkan report.")
     st.divider()
     
-    selected_date = st.date_input("Pilih Tanggal Data yang akan di proses :")
+    selected_date = st.date_input("Pilih Tanggal Data:")
     
     if st.button("Proses Data"):
         # Streamlit akan otomatis mencari [connections.postgresql] di Secrets
