@@ -16,7 +16,7 @@ st.set_page_config(
 )
 
 # 3. KONEKSI & INISIALISASI SESSION
-conn = st.connection("supabase", type=SupabaseConnection)
+conn = st.connection("supabase", type=SupabaseConnection, ttl=3600)
 
 if "authenticated" not in st.session_state:
     try:
