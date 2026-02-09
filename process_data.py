@@ -3,6 +3,8 @@ from sqlalchemy import text
 
 def show_run_procedure(conn): # Tetap terima conn jika perlu, tapi kita buat koneksi baru di sini
     st.title("⚙️ Jalankan Proses Data")
+    st.write("Pilih tanggal data yang mau di proses untuk menghasilkan report.")
+    st.divider()
     
     selected_date = st.date_input("Pilih Tanggal Data yang akan di proses :")
     
