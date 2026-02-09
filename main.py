@@ -7,6 +7,7 @@ from report_rekonsiliasi_transaksi_deposit_dan_settlement import show_report_dep
 from report_rekonsiliasi_transaksi_disbursement_dan_saldo_durian import show_report_disbursement_durian
 from report_detail_reversal import show_report_detail_reversal
 from report_balance_flow import show_report_balance_flow
+from delete_data import show_delete_data
 
 # 1. SET WIDE MODE DEFAULT
 st.set_page_config(
@@ -80,6 +81,11 @@ else:
             if st.button("⚙️\n\n\n\nProcess Data", key="card_proc", use_container_width=True):
                 st.session_state["current_page"] = "procedure"
                 st.rerun()
+
+        with col1:
+            if st.button("🗑️\n\n\n\nDelete Data", key="btn_delete", use_container_width=True):
+                st.session_state["current_page"] = "delete"
+                st.rerun()
         
         st.title("Report")
         st.write("Silakan pilih report yang ingin Anda akses:")
@@ -124,3 +130,6 @@ else:
 
     elif st.session_state["current_page"] == "report_balance_flow":
         show_report_balance_flow(conn)
+
+    elif st.session_state["current_page"] == "delete":
+        show_delete_data(conn)
