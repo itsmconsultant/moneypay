@@ -16,18 +16,26 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. KONEKSI KE SUPABASE
-# Menggunakan koneksi standar tanpa memaksa sessionStorage yang sering tidak stabil di library wrapper
+# 2. KONEKSI KE SUPABASE DENGAN CONFIG STORAGE KHUSUS
+# Menggunakan 'sessionStorage' adalah cara terbaik untuk memastikan:
+# - Refresh/Tab Baru: Tetap Login (karena dalam satu session browser)
+# - Perangkat Lain: Harus Login (karena sessionStorage tidak disinkronkan antar perangkat)
 conn = st.connection(
     "supabase",
-    type=SupabaseConnection
+    type=SupabaseConnection,
+    config={
+        "auth": {
+            "storage_key": "portal-auth-cookie",
+            "storage": "sessionStorage", 
+            "persist_session": True
+        }
+    }
 )
 
-# 3. LOGIKA AUTENTIKASI (REVISI)
-# Bagian ini akan mengecek apakah sesi masih ada di memori browser saat Refresh atau Tab Baru
+# 3. LOGIKA AUTENTIKASI
 if "authenticated" not in st.session_state:
     try:
-        # Mencoba mengambil sesi yang tersimpan di browser secara pasif
+        # Cek sesi aktif di browser saat ini
         session = conn.client.auth.get_session()
         if session:
             st.session_state["authenticated"] = True
@@ -48,22 +56,11 @@ else:
     if "has_refreshed" not in st.session_state:
         st.session_state["has_refreshed"] = False
 
-    # Jika baru saja login dan belum melakukan refresh otomatis
     if not st.session_state["has_refreshed"]:
         st.session_state["has_refreshed"] = True
         st.rerun() 
 
-    # --- PROTEKSI TAMBAHAN ---
-    # Memastikan user_email tetap tersedia setelah refresh
-    if "user_email" not in st.session_state:
-        try:
-            session = conn.client.auth.get_session()
-            if session:
-                st.session_state["user_email"] = session.user.email
-        except:
-            st.session_state["user_email"] = "User"
-
-    # --- SIDEBAR (Navigasi Samping) ---
+    # --- SIDEBAR ---
     with st.sidebar:
         st.title("Informasi Akun")
         st.write(f"Logged in as:\n{st.session_state.get('user_email', 'User')}")
@@ -73,64 +70,50 @@ else:
             st.session_state["current_page"] = "menu"
             st.rerun()
             
-        # Logout Global melalui Tombol
         if st.button("🚪 Logout", key="side_logout", use_container_width=True):
             try:
-                # Sign out global agar perangkat lain juga logout dan token di browser dihapus
+                # Sign out global mencabut semua token di database
                 conn.client.auth.sign_out(scope="global")
             except:
-                # Jika koneksi gagal, abaikan agar tetap bisa clear state lokal
                 pass
             
-            # Bersihkan semua session state secara menyeluruh
+            # Hapus semua session state
             for key in list(st.session_state.keys()):
                 del st.session_state[key]
             
             st.rerun()
 
     # --- KONTEN UTAMA ---
+    # (Pilih halaman berdasarkan st.session_state["current_page"])
     if st.session_state["current_page"] == "menu":
-        st.title("Data")
-        st.write("Harap upload dan proses data terlebih dahulu sebelum menarik report!")
+        st.title("Data & Report Menu")
         st.divider()
         
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("📤\n\n\n\nUpload Data", key="btn_upload", use_container_width=True):
-                st.session_state["current_page"] = "upload"
-                st.rerun()
+            if st.button("📤 Upload Data", key="btn_upload", use_container_width=True):
+                st.session_state["current_page"] = "upload"; st.rerun()
+            if st.button("🗑️ Delete Data", key="btn_delete", use_container_width=True):
+                st.session_state["current_page"] = "delete"; st.rerun()
         with col2:
-            if st.button("⚙️\n\n\n\nProcess Data", key="card_proc", use_container_width=True):
-                st.session_state["current_page"] = "procedure"
-                st.rerun()
-        with col1:
-            if st.button("🗑️\n\n\n\nDelete Data", key="btn_delete", use_container_width=True):
-                st.session_state["current_page"] = "delete"
-                st.rerun()
+            if st.button("⚙️ Process Data", key="card_proc", use_container_width=True):
+                st.session_state["current_page"] = "procedure"; st.rerun()
         
-        st.title("Report")
-        st.write("Silakan pilih report yang ingin Anda akses:")
         st.divider()
-        
+        # Menu Report
         col3, col4 = st.columns(2)
         with col3:
-            if st.button("📊\n\n\n\nReport Rekonsiliasi Transaksi Deposit dan Settlement", key="r1", use_container_width=True):
-                st.session_state["current_page"] = "report_rekonsiliasi_transaksi_deposit_dan_settlement"
-                st.rerun()
+            if st.button("📊 Rekon Deposit", use_container_width=True):
+                st.session_state["current_page"] = "report_rekonsiliasi_transaksi_deposit_dan_settlement"; st.rerun()
+            if st.button("📊 Detail Reversal", use_container_width=True):
+                st.session_state["current_page"] = "report_detail_reversal"; st.rerun()
         with col4:
-            if st.button("📊\n\n\n\nRekonsiliasi Transaksi Disbursement dan Saldo Durian", key="r2", use_container_width=True):
-                st.session_state["current_page"] = "report_rekonsiliasi_transaksi_disbursement_dan_saldo_durian"
-                st.rerun()
-        with col3:
-            if st.button("📊\n\n\n\nReport Detail Reversal", key="r3", use_container_width=True):
-                st.session_state["current_page"] = "report_detail_reversal"
-                st.rerun()
-        with col4:
-            if st.button("📊\n\n\n\nReport Balance Flow", key="r4", use_container_width=True):
-                st.session_state["current_page"] = "report_balance_flow"
-                st.rerun()
+            if st.button("📊 Rekon Disbursement", use_container_width=True):
+                st.session_state["current_page"] = "report_rekonsiliasi_transaksi_disbursement_dan_saldo_durian"; st.rerun()
+            if st.button("📊 Balance Flow", use_container_width=True):
+                st.session_state["current_page"] = "report_balance_flow"; st.rerun()
 
-    # --- ROUTING HALAMAN ---
+    # --- ROUTING ---
     elif st.session_state["current_page"] == "upload":
         show_upload_dashboard(conn)
     elif st.session_state["current_page"] == "procedure":
