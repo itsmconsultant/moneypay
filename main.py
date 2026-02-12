@@ -75,14 +75,23 @@ else:
             
         # Logout Global melalui Tombol
         if st.button("🚪 Logout", key="side_logout", use_container_width=True):
-            conn.client.auth.sign_out(scope="global")
+            try:
+                # 1. Sign out dari Supabase terlebih dahulu
+                conn.client.auth.sign_out(scope="global")
+            except Exception as e:
+                # Jika gagal (misal koneksi terputus), kita abaikan agar tetap bisa clear state lokal
+                pass
+            
+            # 2. Bersihkan semua session state secara manual
             st.session_state["authenticated"] = False
-            # Hapus flag agar saat login lagi bisa refresh otomatis
-            if "has_refreshed" in st.session_state:
-                del st.session_state["has_refreshed"]
-            # Hapus init_check agar proses pembersihan berjalan saat login ulang
-            if "init_check" in st.session_state:
-                del st.session_state["init_check"]
+            
+            # Hapus flag-flag kontrol agar aplikasi benar-benar reset
+            keys_to_clear = ["has_refreshed", "init_check", "user_email", "current_page"]
+            for key in keys_to_clear:
+                if key in st.session_state:
+                    del st.session_state[key]
+            
+            # 3. Paksa kembali ke halaman login
             st.rerun()
 
     # --- KONTEN UTAMA ---
