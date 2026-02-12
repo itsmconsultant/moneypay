@@ -8,6 +8,7 @@ from report_rekonsiliasi_transaksi_disbursement_dan_saldo_durian import show_rep
 from report_detail_reversal import show_report_detail_reversal
 from report_balance_flow import show_report_balance_flow
 from delete_data import show_delete_data
+import time
 
 # 1. SET WIDE MODE DEFAULT
 st.set_page_config(
@@ -19,7 +20,16 @@ st.set_page_config(
 # 2. KONEKSI KE SUPABASE
 conn = st.connection("supabase", type=SupabaseConnection)
 
-# 3. INISIALISASI SESSION STATE (Stateless/Tanpa Sesi Permanen)
+# 3. FUNGSI CEK STATUS KONEKSI (Heartbeat)
+def check_db_status(conn):
+    try:
+        # Melakukan kueri ringan untuk memastikan database merespon
+        conn.query("SELECT 1", count="exactly").execute()
+        return True
+    except:
+        return False
+
+# 4. INISIALISASI SESSION STATE
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
 
@@ -28,24 +38,34 @@ if "current_page" not in st.session_state:
 
 # --- LOGIKA NAVIGASI & PROTEKSI ---
 if not st.session_state["authenticated"]:
-    # Tampilkan halaman login tanpa cookie
     show_login(conn)
 else:
-    # --- LOGIKA AUTO-REFRESH SETELAH LOGIN (PENTING UNTUK STABILITAS WEBSOCKET) ---
-    # Kode ini mencegah Error 1ST dengan menyegarkan koneksi tepat setelah login sukses
+    # --- LOGIKA AUTO-REFRESH SETELAH LOGIN ---
     if "has_refreshed" not in st.session_state:
         st.session_state["has_refreshed"] = False
 
     if not st.session_state["has_refreshed"]:
         st.session_state["has_refreshed"] = True
-        st.rerun()  # Memaksa sinkronisasi ulang browser-server
+        st.rerun()
 
     # --- SIDEBAR (Navigasi Samping) ---
     with st.sidebar:
         st.title("Informasi Akun")
         st.write(f"Logged in as:\n{st.session_state.get('user_email', 'User')}")
-        st.divider()
         
+        # --- INDIKATOR STATUS KONEKSI ---
+        st.divider()
+        st.subheader("Database Status")
+        is_active = check_db_status(conn)
+        
+        if is_active:
+            st.success("🟢 Connection Active")
+        else:
+            st.error("🔴 Connection Lost")
+            if st.button("🔄 Reconnect Now"):
+                st.rerun()
+        
+        st.divider()
         if st.button("🏠 Home Menu", key="side_home", use_container_width=True):
             st.session_state["current_page"] = "menu"
             st.rerun()
@@ -55,8 +75,6 @@ else:
                 conn.client.auth.sign_out()
             except:
                 pass
-            
-            # Reset semua status agar kembali ke login screen
             st.session_state["authenticated"] = False
             if "has_refreshed" in st.session_state:
                 del st.session_state["has_refreshed"]
@@ -69,25 +87,25 @@ else:
         
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("📤 Upload Data", key="btn_upload", use_container_width=True):
+            if st.button("📤\n\n\n\nUpload Data", key="btn_upload", use_container_width=True):
                 st.session_state["current_page"] = "upload"
                 st.rerun()
-            if st.button("🗑️ Delete Data", key="btn_delete", use_container_width=True):
+            if st.button("🗑️\n\n\n\nDelete Data", key="btn_delete", use_container_width=True):
                 st.session_state["current_page"] = "delete"
                 st.rerun()
         with col2:
-            if st.button("⚙️ Process Data", key="card_proc", use_container_width=True):
+            if st.button("⚙️\n\n\n\nProcess Data", key="card_proc", use_container_width=True):
                 st.session_state["current_page"] = "procedure"
                 st.rerun()
         
         st.divider()
         col3, col4 = st.columns(2)
         with col3:
-            if st.button("📊 Rekon Deposit", use_container_width=True):
+            if st.button("📊\n\n\n\nReport Rekonsiliasi Transaksi Deposit dan Settlement", key="r1", use_container_width=True):
                 st.session_state["current_page"] = "report_rekonsiliasi_transaksi_deposit_dan_settlement"
                 st.rerun()
         with col4:
-            if st.button("📊 Rekon Disbursement", use_container_width=True):
+            if st.button("📊\n\n\n\nRekonsiliasi Transaksi Disbursement dan Saldo Durian", key="r2", use_container_width=True):
                 st.session_state["current_page"] = "report_rekonsiliasi_transaksi_disbursement_dan_saldo_durian"
                 st.rerun()
 
