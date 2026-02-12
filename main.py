@@ -17,7 +17,17 @@ st.set_page_config(
 )
 
 # 3. KONEKSI & INISIALISASI SESSION
-conn = st.connection("supabase", type=SupabaseConnection)
+conn = st.connection(
+    "supabase",
+    type=SupabaseConnection,
+    config={
+        "auth": {
+            "storage_key": "supabase.auth.token",
+            "storage": "sessionStorage", # Ini kuncinya!
+            "auto_confirm_it": True
+        }
+    }
+)
 
 if "authenticated" not in st.session_state:
     try:
@@ -56,7 +66,7 @@ else:
             st.session_state["current_page"] = "menu"
             st.rerun()
         if st.button("🚪 Logout", key="side_logout", use_container_width=True):
-            conn.client.auth.sign_out()
+            conn.client.auth.sign_out(scope="global")
             st.session_state["authenticated"] = False
             # Hapus flag agar saat login lagi bisa refresh otomatis
             if "has_refreshed" in st.session_state:
