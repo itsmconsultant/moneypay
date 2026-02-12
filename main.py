@@ -19,19 +19,27 @@ st.set_page_config(
 # 2. KONEKSI KE SUPABASE
 conn = st.connection("supabase", type=SupabaseConnection)
 
-# 3. INISIALISASI SESSION STATE (Hanya di memori Streamlit)
-# Status ini akan hilang otomatis jika tab ditutup atau di-refresh (F5)
+# 3. INISIALISASI SESSION STATE (Stateless/Tanpa Sesi Permanen)
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
 
 if "current_page" not in st.session_state:
     st.session_state["current_page"] = "menu"
 
-# --- LOGIKA NAVIGASI ---
+# --- LOGIKA NAVIGASI & PROTEKSI ---
 if not st.session_state["authenticated"]:
-    # Tampilkan halaman login (Gunakan versi login asli Anda yang simpel)
+    # Tampilkan halaman login tanpa cookie
     show_login(conn)
 else:
+    # --- LOGIKA AUTO-REFRESH SETELAH LOGIN (PENTING UNTUK STABILITAS WEBSOCKET) ---
+    # Kode ini mencegah Error 1ST dengan menyegarkan koneksi tepat setelah login sukses
+    if "has_refreshed" not in st.session_state:
+        st.session_state["has_refreshed"] = False
+
+    if not st.session_state["has_refreshed"]:
+        st.session_state["has_refreshed"] = True
+        st.rerun()  # Memaksa sinkronisasi ulang browser-server
+
     # --- SIDEBAR (Navigasi Samping) ---
     with st.sidebar:
         st.title("Informasi Akun")
@@ -42,15 +50,16 @@ else:
             st.session_state["current_page"] = "menu"
             st.rerun()
             
-        # Logout Sederhana
         if st.button("🚪 Logout", key="side_logout", use_container_width=True):
             try:
                 conn.client.auth.sign_out()
             except:
                 pass
             
-            # Hapus state dan paksa login ulang
+            # Reset semua status agar kembali ke login screen
             st.session_state["authenticated"] = False
+            if "has_refreshed" in st.session_state:
+                del st.session_state["has_refreshed"]
             st.rerun()
 
     # --- KONTEN UTAMA ---
