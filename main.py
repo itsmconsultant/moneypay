@@ -16,18 +16,17 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. KONEKSI KE SUPABASE DENGAN CONFIG STORAGE KHUSUS
-# Menggunakan 'sessionStorage' adalah cara terbaik untuk memastikan:
-# - Refresh/Tab Baru: Tetap Login (karena dalam satu session browser)
-# - Perangkat Lain: Harus Login (karena sessionStorage tidak disinkronkan antar perangkat)
+# 2. KONEKSI KE SUPABASE (MODIFIKASI STORAGE)
+# Kita paksa storage ke 'sessionStorage' agar tidak disinkronkan antar perangkat oleh Chrome/Edge
 conn = st.connection(
     "supabase",
     type=SupabaseConnection,
     config={
         "auth": {
-            "storage_key": "portal-auth-cookie",
+            "storage_key": "portal-session-key",
             "storage": "sessionStorage", 
-            "persist_session": True
+            "persist_session": True,
+            "auto_confirm_it": True
         }
     }
 )
@@ -35,7 +34,7 @@ conn = st.connection(
 # 3. LOGIKA AUTENTIKASI
 if "authenticated" not in st.session_state:
     try:
-        # Cek sesi aktif di browser saat ini
+        # Cek apakah ada sesi di tab browser saat ini
         session = conn.client.auth.get_session()
         if session:
             st.session_state["authenticated"] = True
@@ -52,7 +51,7 @@ if "current_page" not in st.session_state:
 if not st.session_state.get("authenticated"):
     show_login(conn)
 else:
-    # --- LOGIKA AUTO-REFRESH SETELAH LOGIN ---
+    # Auto-refresh setelah login pertama kali
     if "has_refreshed" not in st.session_state:
         st.session_state["has_refreshed"] = False
 
@@ -60,7 +59,7 @@ else:
         st.session_state["has_refreshed"] = True
         st.rerun() 
 
-    # --- SIDEBAR ---
+    # SIDEBAR
     with st.sidebar:
         st.title("Informasi Akun")
         st.write(f"Logged in as:\n{st.session_state.get('user_email', 'User')}")
@@ -72,21 +71,18 @@ else:
             
         if st.button("🚪 Logout", key="side_logout", use_container_width=True):
             try:
-                # Gunakan pemanggilan tanpa parameter 'scope' jika terjadi TypeError
+                # Sign out standar (kompatibel dengan semua versi library)
                 conn.client.auth.sign_out()
-            except Exception:
-                # Abaikan error jika sesi sudah tidak ada di server
+            except:
                 pass
             
-            # Bersihkan semua session state secara menyeluruh agar aplikasi reset
+            # Hapus semua state agar benar-benar bersih
             for key in list(st.session_state.keys()):
                 del st.session_state[key]
             
-            # Paksa kembali ke halaman login
             st.rerun()
 
     # --- KONTEN UTAMA ---
-    # (Pilih halaman berdasarkan st.session_state["current_page"])
     if st.session_state["current_page"] == "menu":
         st.title("Data & Report Menu")
         st.divider()
@@ -102,7 +98,6 @@ else:
                 st.session_state["current_page"] = "procedure"; st.rerun()
         
         st.divider()
-        # Menu Report
         col3, col4 = st.columns(2)
         with col3:
             if st.button("📊 Rekon Deposit", use_container_width=True):
