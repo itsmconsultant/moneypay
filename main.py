@@ -72,20 +72,17 @@ else:
             
         if st.button("🚪 Logout", key="side_logout", use_container_width=True):
             try:
-                # 1. Hapus sesi di sisi server Supabase (Global)
-                conn.client.auth.sign_out(scope="global")
+                # Gunakan pemanggilan tanpa parameter 'scope' jika terjadi TypeError
+                conn.client.auth.sign_out()
             except Exception:
-                # Abaikan jika koneksi sudah terputus
+                # Abaikan error jika sesi sudah tidak ada di server
                 pass
             
-            # 2. Reset status autentikasi di state
-            st.session_state["authenticated"] = False
-            
-            # 3. Bersihkan SEMUA kunci di session_state agar aplikasi benar-benar bersih
+            # Bersihkan semua session state secara menyeluruh agar aplikasi reset
             for key in list(st.session_state.keys()):
                 del st.session_state[key]
             
-            # 4. Paksa aplikasi untuk mulai dari awal (halaman login)
+            # Paksa kembali ke halaman login
             st.rerun()
 
     # --- KONTEN UTAMA ---
