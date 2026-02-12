@@ -16,35 +16,31 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 3. KONEKSI & INISIALISASI SESSION
+# 2. KONEKSI KE SUPABASE
 conn = st.connection(
     "supabase",
-    type=SupabaseConnection,
-    config={
-        "auth": {
-            "storage_key": "supabase.auth.token",
-            "storage": "sessionStorage", # Ini kuncinya!
-            "auto_confirm_it": True
-        }
-    }
+    type=SupabaseConnection
 )
 
-if "authenticated" not in st.session_state:
+# 3. LOGIKA PROTEKSI SESI (AUTO-LOGOUT PADA TAB BARU)
+# st.session_state['init_check'] hanya ada selama tab aktif. 
+# Jika tab ditutup dan dibuka lagi, variable ini hilang, memicu sign_out global.
+if "init_check" not in st.session_state:
     try:
-        # Mencoba mengambil sesi yang tersimpan di browser
-        session = conn.client.auth.get_session()
-        if session:
-            st.session_state["authenticated"] = True
-            st.session_state["user_email"] = session.user.email
-        else:
-            st.session_state["authenticated"] = False
+        # Hapus semua sesi di database & lokal agar tidak "langsung login"
+        conn.client.auth.sign_out(scope="global")
     except:
-        st.session_state["authenticated"] = False
+        pass
+    
+    # Reset semua status login
+    st.session_state["authenticated"] = False
+    st.session_state["init_check"] = True # Tandai bahwa pengecekan awal selesai
+    st.rerun()
 
-if "current_page" not in st.session_state:
-    st.session_state["current_page"] = "menu"
+# 4. PENGECEKAN AUTHENTICATION NORMAL
+if "authenticated" not in st.session_state:
+    st.session_state["authenticated"] = False
 
-# --- LOGIKA NAVIGASI ---
 if not st.session_state["authenticated"]:
     show_login(conn)
 else:
@@ -52,20 +48,23 @@ else:
     if "has_refreshed" not in st.session_state:
         st.session_state["has_refreshed"] = False
 
-    # Jika baru saja login dan belum melakukan refresh otomatis
     if not st.session_state["has_refreshed"]:
         st.session_state["has_refreshed"] = True
-        st.rerun() # Ini akan menyegarkan koneksi WebSocket & Database
+        st.rerun() 
 
-    # Tambahkan pengecekan ini sebelum menampilkan menu utama
-    if st.session_state.get("authenticated"):
-        current_session = conn.client.auth.get_session()
-        if not current_session:
-            # Jika browser ditutup tadi, maka session ini akan kosong
-            st.session_state["authenticated"] = False
-            st.rerun()
-        
-    # SIDEBAR (Navigasi Samping)
+    # Ambil email user untuk tampilan UI
+    if "user_email" not in st.session_state:
+        try:
+            session = conn.client.auth.get_session()
+            if session:
+                st.session_state["user_email"] = session.user.email
+        except:
+            st.session_state["user_email"] = "User"
+
+    if "current_page" not in st.session_state:
+        st.session_state["current_page"] = "menu"
+
+    # --- SIDEBAR (Navigasi Samping) ---
     with st.sidebar:
         st.title("Informasi Akun")
         st.write(f"Logged in as:\n{st.session_state.get('user_email', 'User')}")
@@ -73,33 +72,34 @@ else:
         if st.button("🏠 Home Menu", key="side_home", use_container_width=True):
             st.session_state["current_page"] = "menu"
             st.rerun()
+            
+        # Logout Global melalui Tombol
         if st.button("🚪 Logout", key="side_logout", use_container_width=True):
             conn.client.auth.sign_out(scope="global")
             st.session_state["authenticated"] = False
             # Hapus flag agar saat login lagi bisa refresh otomatis
             if "has_refreshed" in st.session_state:
                 del st.session_state["has_refreshed"]
+            # Hapus init_check agar proses pembersihan berjalan saat login ulang
+            if "init_check" in st.session_state:
+                del st.session_state["init_check"]
             st.rerun()
 
-    # KONTEN UTAMA
+    # --- KONTEN UTAMA ---
     if st.session_state["current_page"] == "menu":
         st.title("Data")
         st.write("Harap upload dan proses data terlebih dahulu sebelum menarik report!")
         st.divider()
         
-        # Grid Menu menggunakan tombol standar Streamlit
         col1, col2 = st.columns(2)
-        
         with col1:
             if st.button("📤\n\n\n\nUpload Data", key="btn_upload", use_container_width=True):
                 st.session_state["current_page"] = "upload"
                 st.rerun()
-        
-        with col2: # Misalnya kotak kedua
+        with col2:
             if st.button("⚙️\n\n\n\nProcess Data", key="card_proc", use_container_width=True):
                 st.session_state["current_page"] = "procedure"
                 st.rerun()
-
         with col1:
             if st.button("🗑️\n\n\n\nDelete Data", key="btn_delete", use_container_width=True):
                 st.session_state["current_page"] = "delete"
@@ -109,45 +109,34 @@ else:
         st.write("Silakan pilih report yang ingin Anda akses:")
         st.divider()
         col3, col4 = st.columns(2)
-        
         with col3:
             if st.button("📊\n\n\n\nReport Rekonsiliasi Transaksi Deposit dan Settlement", key="r1", use_container_width=True):
                 st.session_state["current_page"] = "report_rekonsiliasi_transaksi_deposit_dan_settlement"
                 st.rerun()
-            
         with col4:
             if st.button("📊\n\n\n\nRekonsiliasi Transaksi Disbursement dan Saldo Durian", key="r2", use_container_width=True):
                 st.session_state["current_page"] = "report_rekonsiliasi_transaksi_disbursement_dan_saldo_durian"
                 st.rerun()
-
         with col3:
             if st.button("📊\n\n\n\nReport Detail Reversal", key="r3", use_container_width=True):
                 st.session_state["current_page"] = "report_detail_reversal"
                 st.rerun()
-                
         with col4:
             if st.button("📊\n\n\n\nReport Balance Flow", key="r4", use_container_width=True):
                 st.session_state["current_page"] = "report_balance_flow"
                 st.rerun()
 
     elif st.session_state["current_page"] == "upload":
-        # Menampilkan halaman upload dari file upload_data.py
         show_upload_dashboard(conn)
-        
     elif st.session_state["current_page"] == "procedure":
         show_run_procedure(conn)
-
     elif st.session_state["current_page"] == "report_rekonsiliasi_transaksi_deposit_dan_settlement":
         show_report_deposit_settlement(conn)
-
     elif st.session_state["current_page"] == "report_rekonsiliasi_transaksi_disbursement_dan_saldo_durian":
         show_report_disbursement_durian(conn)
-
     elif st.session_state["current_page"] == "report_detail_reversal":
         show_report_detail_reversal(conn)
-
     elif st.session_state["current_page"] == "report_balance_flow":
         show_report_balance_flow(conn)
-
     elif st.session_state["current_page"] == "delete":
         show_delete_data(conn)
