@@ -37,6 +37,7 @@ else:
         st.session_state["has_refreshed"] = False
 
     if not st.session_state["has_refreshed"]:
+        st.cache_resource.clear()
         st.session_state["has_refreshed"] = True
         st.rerun() 
 
