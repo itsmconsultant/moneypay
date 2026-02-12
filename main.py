@@ -17,42 +17,44 @@ st.set_page_config(
 )
 
 # 2. KONEKSI KE SUPABASE
+# Menggunakan koneksi standar tanpa memaksa sessionStorage yang sering tidak stabil di library wrapper
 conn = st.connection(
     "supabase",
     type=SupabaseConnection
 )
 
-# 3. LOGIKA PROTEKSI SESI (AUTO-LOGOUT PADA TAB BARU)
-# st.session_state['init_check'] hanya ada selama tab aktif. 
-# Jika tab ditutup dan dibuka lagi, variable ini hilang, memicu sign_out global.
-if "init_check" not in st.session_state:
-    try:
-        # Hapus semua sesi di database & lokal agar tidak "langsung login"
-        conn.client.auth.sign_out(scope="global")
-    except:
-        pass
-    
-    # Reset semua status login
-    st.session_state["authenticated"] = False
-    st.session_state["init_check"] = True # Tandai bahwa pengecekan awal selesai
-    st.rerun()
-
-# 4. PENGECEKAN AUTHENTICATION NORMAL
+# 3. LOGIKA AUTENTIKASI (REVISI)
+# Bagian ini akan mengecek apakah sesi masih ada di memori browser saat Refresh atau Tab Baru
 if "authenticated" not in st.session_state:
-    st.session_state["authenticated"] = False
+    try:
+        # Mencoba mengambil sesi yang tersimpan di browser secara pasif
+        session = conn.client.auth.get_session()
+        if session:
+            st.session_state["authenticated"] = True
+            st.session_state["user_email"] = session.user.email
+        else:
+            st.session_state["authenticated"] = False
+    except:
+        st.session_state["authenticated"] = False
 
-if not st.session_state["authenticated"]:
+if "current_page" not in st.session_state:
+    st.session_state["current_page"] = "menu"
+
+# --- LOGIKA NAVIGASI ---
+if not st.session_state.get("authenticated"):
     show_login(conn)
 else:
     # --- LOGIKA AUTO-REFRESH SETELAH LOGIN ---
     if "has_refreshed" not in st.session_state:
         st.session_state["has_refreshed"] = False
 
+    # Jika baru saja login dan belum melakukan refresh otomatis
     if not st.session_state["has_refreshed"]:
         st.session_state["has_refreshed"] = True
         st.rerun() 
 
-    # Ambil email user untuk tampilan UI
+    # --- PROTEKSI TAMBAHAN ---
+    # Memastikan user_email tetap tersedia setelah refresh
     if "user_email" not in st.session_state:
         try:
             session = conn.client.auth.get_session()
@@ -61,14 +63,12 @@ else:
         except:
             st.session_state["user_email"] = "User"
 
-    if "current_page" not in st.session_state:
-        st.session_state["current_page"] = "menu"
-
     # --- SIDEBAR (Navigasi Samping) ---
     with st.sidebar:
         st.title("Informasi Akun")
         st.write(f"Logged in as:\n{st.session_state.get('user_email', 'User')}")
         st.divider()
+        
         if st.button("🏠 Home Menu", key="side_home", use_container_width=True):
             st.session_state["current_page"] = "menu"
             st.rerun()
@@ -76,22 +76,16 @@ else:
         # Logout Global melalui Tombol
         if st.button("🚪 Logout", key="side_logout", use_container_width=True):
             try:
-                # 1. Sign out dari Supabase terlebih dahulu
+                # Sign out global agar perangkat lain juga logout dan token di browser dihapus
                 conn.client.auth.sign_out(scope="global")
-            except Exception as e:
-                # Jika gagal (misal koneksi terputus), kita abaikan agar tetap bisa clear state lokal
+            except:
+                # Jika koneksi gagal, abaikan agar tetap bisa clear state lokal
                 pass
             
-            # 2. Bersihkan semua session state secara manual
-            st.session_state["authenticated"] = False
+            # Bersihkan semua session state secara menyeluruh
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
             
-            # Hapus flag-flag kontrol agar aplikasi benar-benar reset
-            keys_to_clear = ["has_refreshed", "init_check", "user_email", "current_page"]
-            for key in keys_to_clear:
-                if key in st.session_state:
-                    del st.session_state[key]
-            
-            # 3. Paksa kembali ke halaman login
             st.rerun()
 
     # --- KONTEN UTAMA ---
@@ -117,6 +111,7 @@ else:
         st.title("Report")
         st.write("Silakan pilih report yang ingin Anda akses:")
         st.divider()
+        
         col3, col4 = st.columns(2)
         with col3:
             if st.button("📊\n\n\n\nReport Rekonsiliasi Transaksi Deposit dan Settlement", key="r1", use_container_width=True):
@@ -135,6 +130,7 @@ else:
                 st.session_state["current_page"] = "report_balance_flow"
                 st.rerun()
 
+    # --- ROUTING HALAMAN ---
     elif st.session_state["current_page"] == "upload":
         show_upload_dashboard(conn)
     elif st.session_state["current_page"] == "procedure":
