@@ -24,7 +24,7 @@ def show_upload_dashboard(conn):
         try:
             df = pd.read_excel(uploaded_file)
             # Normalisasi kolom: kecilkan huruf, ganti spasi & petik dengan _
-            df.columns = [str(col).strip().lower().replace(' ', '_').replace("'", "_") for col in df.columns]
+            df.columns = [str(col).strip().lower().replace(' ', '_').replace("'", "_").replace("+", "_") for col in df.columns]
             
             st.subheader(f"Total: {len(df)} baris")
             st.dataframe(df.head(10), use_container_width=True)
@@ -49,6 +49,7 @@ def show_upload_dashboard(conn):
                         st.error(f"Error saat upload: {e}")
         except Exception as e:
             st.error(f"File rusak atau tidak terbaca: {e}")
+
 
 
 
