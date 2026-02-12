@@ -66,20 +66,29 @@ else:
             st.session_state["current_page"] = "menu"
             st.rerun()
             
+        # Logout melalui Tombol
         if st.button("🚪 Logout", key="side_logout", use_container_width=True):
             try:
+                # 1. Sign out dari Supabase
                 conn.client.auth.sign_out()
             except:
                 pass
             
-            # HAPUS COOKIE SECARA MANUAL
-            cookie_manager.delete("is_logged_in")
-            cookie_manager.delete("user_email")
+            # 2. HAPUS COOKIE DENGAN PENGECEKAN (Safety Check)
+            # Menggunakan loop untuk memastikan kita hanya menghapus kunci yang benar-benar ada
+            current_cookies = cookie_manager.get_all()
+            if current_cookies:
+                if "is_logged_in" in current_cookies:
+                    cookie_manager.delete("is_logged_in")
+                if "user_email" in current_cookies:
+                    cookie_manager.delete("user_email")
             
-            # Bersihkan session state
+            # 3. Bersihkan session state secara menyeluruh
             for key in list(st.session_state.keys()):
                 del st.session_state[key]
             
+            # 4. Berikan pesan sukses sejenak lalu paksa rerun
+            st.success("Logout berhasil...")
             st.rerun()
 
     # --- KONTEN UTAMA (Sama seperti sebelumnya) ---
