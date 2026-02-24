@@ -36,18 +36,21 @@ def show_upload_dashboard(conn):
             st.subheader(f"Total : {len(df)} baris")
             st.dataframe(df.head(10), use_container_width=True)
             
-            if st.button("Unggah Data", use_container_width=True):
-                # --- LOGIKA TANGGAL ---
+            # Inisialisasi state untuk tombol
+            if "upload_processing" not in st.session_state:
+                st.session_state.upload_processing = False
+
+            # Tombol Unggah Data dengan kondisi disabled saat proses berjalan
+            if st.button("Unggah Data", use_container_width=True, disabled=st.session_state.upload_processing):
+                st.session_state.upload_processing = True
+                
+                # --- LOGIKA TANGGAL (FIX UNTUK TIMESTAMP DATABASE) ---
                 df[date_col_target] = pd.to_datetime(df[date_col_target]).dt.date
                 distinct_dates = sorted(df[date_col_target].unique())
 
-                # Placeholder untuk Progress Bar dan Status Teks
-                # pbar = st.progress(0)
-                # status_text = st.empty() # Wadah kosong untuk teks dinamis
-
                 with st.spinner('Proses pengunggahan...'):
                     try:
-                        # STEP 3: Delete data berdasarkan rentang waktu (Timestamp fix)
+                        # STEP 3: Delete data berdasarkan rentang waktu
                         for d in distinct_dates:
                             start_of_day = f"{d.isoformat()} 00:00:00"
                             end_of_day = f"{d.isoformat()} 23:59:59.999999"
@@ -58,7 +61,7 @@ def show_upload_dashboard(conn):
                                 .lte(date_col_target, end_of_day) \
                                 .execute()
                         
-                        # STEP 4: Insert data baru dengan Chunking
+                        # STEP 4: Insert data baru dengan Chunking (tetap digunakan agar tidak timeout)
                         def clean_json_data(obj):
                             if isinstance(obj, list): return [clean_json_data(item) for item in obj]
                             elif isinstance(obj, dict): return {k: clean_json_data(v) for k, v in obj.items()}
@@ -69,28 +72,23 @@ def show_upload_dashboard(conn):
 
                         cleaned_data = clean_json_data(df.to_dict(orient='records'))
                         
-                        CHUNK_SIZE = 5000
+                        CHUNK_SIZE = 5000 
                         total_rows = len(cleaned_data)
-                        success_count = 0
                         
                         for i in range(0, total_rows, CHUNK_SIZE):
                             chunk = cleaned_data[i:i + CHUNK_SIZE]
                             conn.client.schema("moneypay").table(target_table).insert(chunk).execute()
-                            
-                            # success_count += len(chunk)
-                            
-                            # # Update Progress Bar & Status Teks secara real-time
-                            # pbar.progress(success_count / total_rows)
-                            # status_text.write(f"Mengunggah data ... {success_count} / {total_rows}")
                         
-                        st.success(f"Data berhasil di unggah!")
+                        # Tampilan status berhasil (kotak hijau)
+                        st.success("Data berhasil di unggah!")
                         st.balloons()
 
                     except Exception as e:
                         st.error(f"Proses gagal di database: {e}")
+                
+                # Reset status tombol setelah selesai
+                st.session_state.upload_processing = False
+                st.rerun()
                         
         except Exception as e:
             st.error(f"Error pembacaan file: {e}")
-
-
-
