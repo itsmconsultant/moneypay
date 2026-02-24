@@ -77,11 +77,11 @@ def show_upload_dashboard(conn):
                             chunk = cleaned_data[i:i + CHUNK_SIZE]
                             conn.client.schema("moneypay").table(target_table).insert(chunk).execute()
                             
-                            success_count += len(chunk)
+                            # success_count += len(chunk)
                             
-                            # Update Progress Bar & Status Teks secara real-time
-                            pbar.progress(success_count / total_rows)
-                            status_text.write(f"Mengunggah data ... {success_count} / {total_rows}")
+                            # # Update Progress Bar & Status Teks secara real-time
+                            # pbar.progress(success_count / total_rows)
+                            # status_text.write(f"Mengunggah data ... {success_count} / {total_rows}")
                         
                         st.success(f"Data berhasil di unggah!")
                         st.balloons()
@@ -91,4 +91,5 @@ def show_upload_dashboard(conn):
                         
         except Exception as e:
             st.error(f"Error pembacaan file: {e}")
+
 
