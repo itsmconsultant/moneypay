@@ -17,7 +17,7 @@ st.set_page_config(
 )
 
 # 2. KONEKSI KE SUPABASE
-conn = st.connection("supabase", type=SupabaseConnection, ttl=None)
+conn = st.connection("supabase", type=SupabaseConnection, ttl=0)
 
 # 3. INISIALISASI SESSION STATE DASAR
 if "authenticated" not in st.session_state:
