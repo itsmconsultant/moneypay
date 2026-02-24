@@ -42,8 +42,8 @@ def show_upload_dashboard(conn):
                 distinct_dates = sorted(df[date_col_target].unique())
 
                 # Placeholder untuk Progress Bar dan Status Teks
-                pbar = st.progress(0)
-                status_text = st.empty() # Wadah kosong untuk teks dinamis
+                # pbar = st.progress(0)
+                # status_text = st.empty() # Wadah kosong untuk teks dinamis
 
                 with st.spinner('Proses pengunggahan...'):
                     try:
@@ -91,5 +91,6 @@ def show_upload_dashboard(conn):
                         
         except Exception as e:
             st.error(f"Error pembacaan file: {e}")
+
 
 
