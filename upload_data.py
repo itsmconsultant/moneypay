@@ -69,7 +69,7 @@ def show_upload_dashboard(conn):
 
                         cleaned_data = clean_json_data(df.to_dict(orient='records'))
                         
-                        CHUNK_SIZE = 1000
+                        CHUNK_SIZE = 5000
                         total_rows = len(cleaned_data)
                         success_count = 0
                         
@@ -91,3 +91,4 @@ def show_upload_dashboard(conn):
                         
         except Exception as e:
             st.error(f"Error pembacaan file: {e}")
+
