@@ -41,7 +41,7 @@ def show_upload_dashboard(conn):
                 df[date_col_target] = pd.to_datetime(df[date_col_target]).dt.date
                 distinct_dates = sorted(df[date_col_target].unique())
 
-                with st.spinner('Proses pembersihan dan pengunggahan...'):
+                with st.spinner('Proses pengunggahan...'):
                     try:
                         # STEP 3: Delete data berdasarkan rentang waktu (Timestamp fix)
                         # Kita iterasi per tanggal untuk mencakup 24 jam penuh
@@ -79,7 +79,7 @@ def show_upload_dashboard(conn):
                             success_count += len(chunk)
                             pbar.progress(success_count / total_rows)
                         
-                        st.success(f"Berhasil! Data lama pada {len(distinct_dates)} tanggal terkait telah dibersihkan dan {success_count} baris baru telah diunggah.")
+                        st.success(f"Upload telah berhasil!")
                         st.balloons()
 
                     except Exception as e:
@@ -87,3 +87,4 @@ def show_upload_dashboard(conn):
                         
         except Exception as e:
             st.error(f"Error pembacaan file: {e}")
+
