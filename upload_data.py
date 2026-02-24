@@ -87,8 +87,9 @@ def show_upload_dashboard(conn):
                         st.error(f"Proses gagal di database: {e}")
                 
                 # Reset status tombol setelah selesai
-                st.session_state.upload_processing = False
-                st.rerun()
+                # st.session_state.upload_processing = False
+                # st.rerun()
                         
         except Exception as e:
             st.error(f"Error pembacaan file: {e}")
+
