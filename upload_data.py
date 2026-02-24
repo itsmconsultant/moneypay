@@ -7,8 +7,9 @@ def show_upload_dashboard(conn):
     st.write("Pilih tabel tujuan untuk penyimpanan data dan excel sebagai sumber data.")
     st.divider()
 
-    # 1. Ambil daftar tabel dan kolom tanggal dari mapping table
+    # 1. Ambil daftar tabel dari mapping table
     try:
+        # Mapping table di schema moneypay dengan nama 'mapping_kolom_delete'
         mapping_data = conn.client.schema("moneypay").table("mapping_kolom_delete").select("*").execute()
         mapping_df = pd.DataFrame(mapping_data.data)
         list_tabel = mapping_df['table_name'].tolist()
@@ -35,21 +36,22 @@ def show_upload_dashboard(conn):
             st.subheader(f"Total : {len(df)} baris")
             st.dataframe(df.head(10), use_container_width=True)
             
-            if st.button("Unggah Data"):
-                # --- LOGIKA TANGGAL (FIX UNTUK TIMESTAMP DATABASE) ---
-                # Mengonversi kolom ke datetime lalu ambil porsi date saja
+            if st.button("Unggah Data", use_container_width=True):
+                # --- LOGIKA TANGGAL ---
                 df[date_col_target] = pd.to_datetime(df[date_col_target]).dt.date
                 distinct_dates = sorted(df[date_col_target].unique())
+
+                # Placeholder untuk Progress Bar dan Status Teks
+                pbar = st.progress(0)
+                status_text = st.empty() # Wadah kosong untuk teks dinamis
 
                 with st.spinner('Proses pengunggahan...'):
                     try:
                         # STEP 3: Delete data berdasarkan rentang waktu (Timestamp fix)
-                        # Kita iterasi per tanggal untuk mencakup 24 jam penuh
                         for d in distinct_dates:
                             start_of_day = f"{d.isoformat()} 00:00:00"
                             end_of_day = f"{d.isoformat()} 23:59:59.999999"
                             
-                            # Menggunakan gte (>=) dan lte (<=) untuk menghapus semua jam di hari tersebut
                             conn.client.schema("moneypay").table(target_table) \
                                 .delete() \
                                 .gte(date_col_target, start_of_day) \
@@ -67,19 +69,21 @@ def show_upload_dashboard(conn):
 
                         cleaned_data = clean_json_data(df.to_dict(orient='records'))
                         
-                        CHUNK_SIZE = 5000
+                        CHUNK_SIZE = 1000
                         total_rows = len(cleaned_data)
                         success_count = 0
-                        
-                        pbar = st.progress(0)
                         
                         for i in range(0, total_rows, CHUNK_SIZE):
                             chunk = cleaned_data[i:i + CHUNK_SIZE]
                             conn.client.schema("moneypay").table(target_table).insert(chunk).execute()
+                            
                             success_count += len(chunk)
+                            
+                            # Update Progress Bar & Status Teks secara real-time
                             pbar.progress(success_count / total_rows)
+                            status_text.write(f"Mengunggah data ... {success_count} / {total_rows}")
                         
-                        st.success(f"Upload telah berhasil!")
+                        st.success(f"Data berhasil di unggah!")
                         st.balloons()
 
                     except Exception as e:
@@ -87,4 +91,3 @@ def show_upload_dashboard(conn):
                         
         except Exception as e:
             st.error(f"Error pembacaan file: {e}")
-
