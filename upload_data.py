@@ -9,7 +9,6 @@ def show_upload_dashboard(conn):
 
     # 1. Ambil daftar tabel dari mapping table
     try:
-        # Mapping table di schema moneypay dengan nama 'mapping_kolom_delete'
         mapping_data = conn.client.schema("moneypay").table("mapping_kolom_delete").select("*").execute()
         mapping_df = pd.DataFrame(mapping_data.data)
         list_tabel = mapping_df['table_name'].tolist()
@@ -36,13 +35,8 @@ def show_upload_dashboard(conn):
             st.subheader(f"Total : {len(df)} baris")
             st.dataframe(df.head(10), use_container_width=True)
             
-            # Inisialisasi state untuk tombol
-            if "upload_processing" not in st.session_state:
-                st.session_state.upload_processing = False
-
-            # Tombol Unggah Data dengan kondisi disabled saat proses berjalan
-            if st.button("Unggah Data", use_container_width=True, disabled=st.session_state.upload_processing):
-                st.session_state.upload_processing = True
+            # Tombol Unggah Data tanpa fitur disabled
+            if st.button("Unggah Data", use_container_width=True):
                 
                 # --- LOGIKA TANGGAL (FIX UNTUK TIMESTAMP DATABASE) ---
                 df[date_col_target] = pd.to_datetime(df[date_col_target]).dt.date
@@ -61,7 +55,7 @@ def show_upload_dashboard(conn):
                                 .lte(date_col_target, end_of_day) \
                                 .execute()
                         
-                        # STEP 4: Insert data baru dengan Chunking (tetap digunakan agar tidak timeout)
+                        # STEP 4: Insert data baru dengan Chunking
                         def clean_json_data(obj):
                             if isinstance(obj, list): return [clean_json_data(item) for item in obj]
                             elif isinstance(obj, dict): return {k: clean_json_data(v) for k, v in obj.items()}
@@ -79,17 +73,12 @@ def show_upload_dashboard(conn):
                             chunk = cleaned_data[i:i + CHUNK_SIZE]
                             conn.client.schema("moneypay").table(target_table).insert(chunk).execute()
                         
-                        # Tampilan status berhasil (kotak hijau)
+                        # Kotak status hijau sesuai permintaan
                         st.success("Data berhasil di unggah!")
                         st.balloons()
 
                     except Exception as e:
                         st.error(f"Proses gagal di database: {e}")
-                
-                # Reset status tombol setelah selesai
-                # st.session_state.upload_processing = False
-                # st.rerun()
                         
         except Exception as e:
             st.error(f"Error pembacaan file: {e}")
-
