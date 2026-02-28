@@ -11,7 +11,7 @@ from delete_data import show_delete_data
 
 # 1. SET WIDE MODE DEFAULT
 st.set_page_config(
-    page_title="Portal System", 
+    page_title="Moneypay Portal System", 
     layout="wide", 
     initial_sidebar_state="expanded"
 )
