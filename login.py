@@ -2,7 +2,7 @@ import streamlit as st
 
 def show_login(conn):
     # Menampilkan judul di tengah halaman login
-    st.title("🔐 Login")
+    st.title("🔐 Moneypay Login")
     
     # Membuat form login agar input email dan password dikirim bersamaan
     with st.form("login_form"):
