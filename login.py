@@ -1,6 +1,12 @@
 import streamlit as st
 
 def show_login(conn):
+    st.set_page_config(
+        page_title="Moneypay Login",
+        layout="centered",
+        initial_sidebar_state="expanded"
+    )
+    
     # Menampilkan judul di tengah halaman login
     st.title("🔐 Moneypay Login")
     
