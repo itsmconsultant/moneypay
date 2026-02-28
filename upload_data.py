@@ -7,6 +7,13 @@ def show_upload_dashboard(conn):
     st.write("Pilih tabel tujuan untuk penyimpanan data dan excel sebagai sumber data.")
     st.divider()
 
+    table_display_names = {
+        "deposit": "Data Deposit",
+        "disbursement": "Data Disbursement",
+        "saldo_durian": "Data Saldo Durian",
+        "settlement": "Data Settlement"
+    }
+
     # 1. Ambil daftar tabel dari mapping table
     try:
         mapping_data = conn.client.schema("moneypay").table("mapping_kolom_delete").select("*").execute()
@@ -16,7 +23,12 @@ def show_upload_dashboard(conn):
         st.error(f"Gagal memuat mapping tabel: {e}")
         list_tabel = []
 
-    target_table = st.selectbox("Pilih Tabel Tujuan:", list_tabel)
+    target_table = st.selectbox(
+        "Pilih Tabel Tujuan:", 
+        list_tabel,
+        format_func=lambda x: table_display_names.get(x, x)
+    )
+    
     uploaded_file = st.file_uploader("Pilih file Excel (.xlsx)", type=["xlsx"])
 
     if uploaded_file and target_table:
@@ -82,3 +94,4 @@ def show_upload_dashboard(conn):
                         
         except Exception as e:
             st.error(f"Error pembacaan file: {e}")
+
